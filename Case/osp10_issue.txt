@@ -1,0 +1,213 @@
+[stack@director ~]$ ssh heat-admin@192.168.103.64
+Last login: Wed Jan 11 02:09:06 2017 from 192.168.103.10
+[heat-admin@overcloud-controller-0 ~]$ sudo su -
+Last login: Wed Jan 11 02:09:10 UTC 2017 on pts/0
+[root@overcloud-controller-0 ~]# ip r
+default via 192.168.101.1 dev br-ex
+169.254.169.254 via 192.168.103.10 dev eth0
+192.168.101.0/24 dev br-ex  proto kernel  scope link  src 192.168.101.12
+192.168.102.0/24 dev eth2  proto kernel  scope link  src 192.168.102.22
+192.168.103.0/24 dev eth0  proto kernel  scope link  src 192.168.103.64
+192.168.104.0/24 dev eth4  proto kernel  scope link  src 192.168.104.24
+192.168.105.0/24 dev eth5  proto kernel  scope link  src 192.168.105.19
+192.168.106.0/24 dev br-tenant  proto kernel  scope link  src 192.168.106.11
+[root@overcloud-controller-0 ~]# ovs-vsctl show
+d5bd8af6-991f-4eb6-8ab9-d2311e8ed41a
+    Bridge br-ex
+        fail_mode: standalone
+        Port "eth1"
+            Interface "eth1"
+        Port br-ex
+            Interface br-ex
+                type: internal
+    Bridge br-tenant
+        fail_mode: standalone
+        Port br-tenant
+            Interface br-tenant
+                type: internal
+        Port "eth3"
+            Interface "eth3"
+    ovs_version: "2.5.0"
+[root@overcloud-controller-0 ~]# ovs-ofctl dump-flows
+ovs-ofctl: 'dump-flows' command requires at least 1 arguments
+[root@overcloud-controller-0 ~]# ovs-ofctl dump-flows  br-tenant
+NXST_FLOW reply (xid=0x4):
+ cookie=0x0, duration=2797.388s, table=0, n_packets=1428, n_bytes=74806, idle_age=0, priority=0 actions=NORMAL
+[root@overcloud-controller-0 ~]#
+[root@overcloud-controller-0 ~]# journalctl -u os-collect-config > 1
+[root@overcloud-controller-0 ~]# vim 1
+-bash: vim: command not found
+[root@overcloud-controller-0 ~]# vi 1
+[root@overcloud-controller-0 ~]# grep -i error 1 -irn
+5068:Jan 11 02:19:10 overcloud-controller-0.genomics.cn os-collect-config[4289]: ::dbsync::begin]: Dependency Exec[galera-ready] has failures: true\u001b[0m\n\u001b[mNotice: /Stage[main]/Neutron::Deps/Anchor[neutron::dbsync::end]: Dependency Exec[galera-ready] has failures: true\u001b[0m\n\u001b[mNotice: /Stage[main]/Neutron::Deps/Anchor[neutron::service::begin]: Dependency Exec[galera-ready] has failures: true\u001b[0m\n\u001b[mNotice: /Firewall[998 log all]: Dependency Exec[galera-ready] has failures: true\u001b[0m\n\u001b[mNotice: /Firewall[999 drop all]: Dependency Exec[galera-ready] has failures: true\u001b[0m\n\u001b[mNotice: Finished catalog run in 1860.45 seconds\u001b[0m\n", "deploy_stderr": "exception: connect failed\n\u001b[1;31mWarning: Scope(Class[Mongodb::Server]): Replset specified, but no replset_members or replset_config provided.\u001b[0m\n\u001b[1;31mWarning: Scope(Haproxy::Config[haproxy]): haproxy: The $merge_options parameter will default to true in the next major release. Please review the documentation regarding the implications.\u001b[0m\n\u001b[1;31mError: Could not prefetch mysql_user provider 'mysql': Execution of '/usr/bin/mysql -NBe SELECT CONCAT(User, '@',Host) AS User FROM mysql.user' returned 1: ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2)\u001b[0m\n\u001b[1;31mError: /usr/bin/clustercheck >/dev/null returned 1 instead of one of [0]\u001b[0m\n\u001b[1;31mError: /Stage[main]/Tripleo::Profile::Pacemaker::Database::Mysql/Exec[galera-ready]/returns: change from notrun to 0 failed: /usr/bin/clustercheck >/dev/null returned 1 instead of one of [0]\u001b[0m\n\u001b[1;31mError: Could not prefetch mysql_database provider 'mysql': Execution of '/usr/bin/mysql -NBe show databases' returned 1: ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2)\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Nova::Db::Mysql/Openstacklib::Db::Mysql[nova]/Mysql_database[nova]: Skipping because of failed dependencies\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Ceilometer::Db::Mysql/Openst
+5069:Jan 11 02:19:10 overcloud-controller-0.genomics.cn os-collect-config[4289]: acklib::Db::Mysql[ceilometer]/Mysql_database[ceilometer]: Skipping because of failed dependencies\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Neutron::Db::Mysql/Openstacklib::Db::Mysql[neutron]/Mysql_database[ovs_neutron]: Skipping because of failed dependencies\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Glance::Db::Mysql/Openstacklib::Db::Mysql[glance]/Mysql_database[glance]: Skipping because of failed dependencies\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Glance::Db::Mysql/Openstacklib::Db::Mysql[glance]/Openstacklib::Db::Mysql::Host_access[glance_192.168.102.15]/Mysql_user[glance@192.168.102.15]: Skipping because of failed dependencies\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Heat::Db::Mysql/Openstacklib::Db::Mysql[heat]/Mysql_database[heat]: Skipping because of failed dependencies\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Heat::Db::Mysql/Openstacklib::Db::Mysql[heat]/Openstacklib::Db::Mysql::Host_access[heat_%]/Mysql_user[heat@%]: Skipping because of failed dependencies\u001b[0m\n\u001b[1;31mError: Could not prefetch mysql_grant provider 'mysql': Execution of '/usr/bin/mysql -NBe SELECT CONCAT(User, '@',Host) AS User FROM mysql.user' returned 1: ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2)\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Heat::Db::Mysql/Openstacklib::Db::Mysql[heat]/Openstacklib::Db::Mysql::Host_access[heat_%]/Mysql_grant[heat@%/heat.*]: Skipping because of failed dependencies\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Neutron::Db::Mysql/Openstacklib::Db::Mysql[neutron]/Openstacklib::Db::Mysql::Host_access[ovs_neutron_192.168.102.22]/Mysql_user[neutron@192.168.102.22]: Skipping because of failed dependencies\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Neutron::Db::Mysql/Openstacklib::Db::Mysql[neutron]/Openstacklib::Db::Mysql::Host_access[ovs_neutron_192.168.102.22]/Mysql_grant[neutron@192.168.102.22/ovs_neutron.*]: Skipping because of failed dependencies\u001b[0m\n\u001b[1;31mWarning: /Stage[main]/Glance::Db::Mysql/Openstacklib::D
+5292:Jan 11 02:19:10 overcloud-controller-0.genomics.cn os-collect-config[4289]: Error: Could not prefetch mysql_user provider 'mysql': Execution of '/usr/bin/mysql -NBe SELECT CONCAT(User, '@',Host) AS User FROM mysql.user' returned 1: ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2)
+5293:Jan 11 02:19:10 overcloud-controller-0.genomics.cn os-collect-config[4289]: Error: /usr/bin/clustercheck >/dev/null returned 1 instead of one of [0]
+5294:Jan 11 02:19:10 overcloud-controller-0.genomics.cn os-collect-config[4289]: Error: /Stage[main]/Tripleo::Profile::Pacemaker::Database::Mysql/Exec[galera-ready]/returns: change from notrun to 0 failed: /usr/bin/clustercheck >/dev/null returned 1 instead of one of [0]
+5295:Jan 11 02:19:10 overcloud-controller-0.genomics.cn os-collect-config[4289]: Error: Could not prefetch mysql_database provider 'mysql': Execution of '/usr/bin/mysql -NBe show databases' returned 1: ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2)
+5303:Jan 11 02:19:10 overcloud-controller-0.genomics.cn os-collect-config[4289]: Error: Could not prefetch mysql_grant provider 'mysql': Execution of '/usr/bin/mysql -NBe SELECT CONCAT(User, '@',Host) AS User FROM mysql.user' returned 1: ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2)
+5398:Jan 11 02:19:10 overcloud-controller-0.genomics.cn os-collect-config[4289]: [2017-01-11 02:19:10,177] (heat-config) [ERROR] Error running /var/lib/heat-config/heat-config-puppet/e57fbb9d-f2c3-44e8-80ad-c7b1056ab33e.pp. [6]
+[root@overcloud-controller-0 ~]# ovs-vsctl show
+d5bd8af6-991f-4eb6-8ab9-d2311e8ed41a
+    Bridge br-ex
+        fail_mode: standalone
+        Port "eth1"
+            Interface "eth1"
+        Port br-ex
+            Interface br-ex
+                type: internal
+    Bridge br-tenant
+        fail_mode: standalone
+        Port br-tenant
+            Interface br-tenant
+                type: internal
+        Port "eth3"
+            Interface "eth3"
+    ovs_version: "2.5.0"
+[root@overcloud-controller-0 ~]# cd /etc/os-net-config/
+[root@overcloud-controller-0 os-net-config]# ls
+config.json
+[root@overcloud-controller-0 os-net-config]# python -m json.tool config
+Traceback (most recent call last):
+  File "/usr/lib64/python2.7/runpy.py", line 162, in _run_module_as_main
+    "__main__", fname, loader, pkg_name)
+  File "/usr/lib64/python2.7/runpy.py", line 72, in _run_code
+    exec code in run_globals
+  File "/usr/lib64/python2.7/json/tool.py", line 40, in <module>
+    main()
+  File "/usr/lib64/python2.7/json/tool.py", line 21, in main
+    infile = open(sys.argv[1], 'rb')
+IOError: [Errno 2] No such file or directory: 'config'
+[root@overcloud-controller-0 os-net-config]# python -m json.tool config.json
+{
+    "network_config": [
+        {
+            "addresses": [
+                {
+                    "ip_netmask": "192.168.103.64/24"
+                }
+            ],
+            "dns_servers": [
+                "192.168.16.30",
+                "8.8.8.8"
+            ],
+            "name": "nic1",
+            "routes": [
+                {
+                    "ip_netmask": "169.254.169.254/32",
+                    "next_hop": "192.168.103.10"
+                }
+            ],
+            "type": "interface",
+            "use_dhcp": false
+        },
+        {
+            "addresses": [
+                {
+                    "ip_netmask": "192.168.104.24/24"
+                }
+            ],
+            "name": "nic5",
+            "type": "interface",
+            "use_dhcp": false
+        },
+        {
+            "addresses": [
+                {
+                    "ip_netmask": "192.168.105.19/24"
+                }
+            ],
+            "name": "nic6",
+            "type": "interface",
+            "use_dhcp": false
+        },
+        {
+            "addresses": [
+                {
+                    "ip_netmask": "192.168.102.22/24"
+                }
+            ],
+            "name": "nic3",
+            "type": "interface",
+            "use_dhcp": false
+        },
+        {
+            "addresses": [
+                {
+                    "ip_netmask": "192.168.106.11/24"
+                }
+            ],
+            "members": [
+                {
+                    "name": "nic4",
+                    "primary": true,
+                    "type": "interface",
+                    "use_dhcp": false
+                }
+            ],
+            "name": "br-tenant",
+            "type": "ovs_bridge",
+            "use_dhcp": false
+        },
+        {
+            "addresses": [
+                {
+                    "ip_netmask": "192.168.101.12/24"
+                }
+            ],
+            "dns_servers": [
+                "192.168.16.30",
+                "8.8.8.8"
+            ],
+            "members": [
+                {
+                    "name": "nic2",
+                    "primary": true,
+                    "type": "interface"
+                }
+            ],
+            "name": "br-ex",
+            "routes": [
+                {
+                    "default": true,
+                    "next_hop": "192.168.101.1"
+                }
+            ],
+            "type": "ovs_bridge",
+            "use_dhcp": false
+        }
+    ]
+}
+[root@overcloud-controller-0 os-net-config]#
+
+
+
+2017-01-11 01:48:28Z [overcloud.AllNodesDeploySteps.ControllerDeployment_Step2.1]: CREATE_COMPLETE  state changed
+2017-01-11 01:48:29Z [overcloud.AllNodesDeploySteps.ControllerDeployment_Step2.2]: CREATE_COMPLETE  state changed
+2017-01-11 02:19:10Z [overcloud.AllNodesDeploySteps.ControllerDeployment_Step2.0]: SIGNAL_IN_PROGRESS  Signal: deployment 922732dc-6ee2-45e0-9755-dc2050a5d464 failed (6)
+2017-01-11 02:19:11Z [overcloud.AllNodesDeploySteps.ControllerDeployment_Step2.0]: CREATE_FAILED  Error: resources[0]: Deployment to server failed: deploy_status_code : Deployment exited with non-zero status code: 6
+2017-01-11 02:19:11Z [overcloud.AllNodesDeploySteps.ControllerDeployment_Step2]: CREATE_FAILED  Resource CREATE failed: Error: resources[0]: Deployment to server failed: deploy_status_code : Deployment exited with non-zero status code: 6
+2017-01-11 02:19:12Z [overcloud.AllNodesDeploySteps.ControllerDeployment_Step2]: CREATE_FAILED  Error: resources.ControllerDeployment_Step2.resources[0]: Deployment to server failed: deploy_status_code: Deployment exited with non-zero status code: 6
+2017-01-11 02:19:12Z [overcloud.AllNodesDeploySteps]: CREATE_FAILED  Resource CREATE failed: Error: resources.ControllerDeployment_Step2.resources[0]: Deployment to server failed: deploy_status_code: Deployment exited with non-zero status code: 6
+2017-01-11 02:19:13Z [overcloud.AllNodesDeploySteps]: CREATE_FAILED  Error: resources.AllNodesDeploySteps.resources.ControllerDeployment_Step2.resources[0]: Deployment to server failed: deploy_status_code: Deployment exited with non-zero status code: 6
+2017-01-11 02:19:13Z [overcloud]: CREATE_FAILED  Resource CREATE failed: Error: resources.AllNodesDeploySteps.resources.ControllerDeployment_Step2.resources[0]: Deployment to server failed: deploy_status_code: Deployment exited with non-zero status code: 6
+
+ Stack overcloud CREATE_FAILED
+
+Heat Stack create failed.
+
+real    53m41.221s
+user    0m7.085s
+sys     0m0.750s
+
+
+1 controller ,1 computer
+
+[root@director ~]# heat stack-list -n |egrep -i "fail|progress"
+WARNING (shell) "heat stack-list" is deprecated, please use "openstack stack list" instead
+| 4242b098-2c37-461a-ae6f-b70aad2059fb | overcloud                                                                                                                                    | CREATE_IN_PROGRESS | 2017-01-13T08:21:14Z | None         | None                                 |
+| 641b1771-ffa3-44f1-aa4b-ae6ba6c4d436 | overcloud-AllNodesDeploySteps-jhxcvv6b5im3                                                                                                   | CREATE_IN_PROGRESS | 2017-01-13T08:30:12Z | None         | 4242b098-2c37-461a-ae6f-b70aad2059fb |
+| 5666945f-1abe-42a7-879b-0dd7be1d9e0b | overcloud-AllNodesDeploySteps-jhxcvv6b5im3-ControllerDeployment_Step2-idddzpy47vmv                                                           | CREATE_IN_PROGRESS | 2017-01-13T08:36:01Z | None         | 641b1771-ffa3-44f1-aa4b-ae6ba6c4d436 |
+
+
+
